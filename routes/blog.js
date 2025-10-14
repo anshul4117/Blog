@@ -9,6 +9,5 @@ router.post('/create', auth,createBlog);
 router.get('/allblogs', auth,allBlogs);
 router.get('/:id', auth,getBlogById);
 router.delete('/del-blog/:id', auth,deleteBlog);
-router.get('/up-blog',auth);
 
 export default router;  
