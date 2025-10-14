@@ -89,7 +89,7 @@ Base URL: http://localhost:<PORT> (default: 2000)
 Auth routes (defined in `routes/auth.js`)
 
 - POST /auth/create — register a new user (controller: `createUser.js`)
-- GET  /auth/login  — login a user (controller: `loginUser.js`)
+- POST  /auth/login  — login a user (controller: `loginUser.js`)
 - GET  /auth/allUsers — list all users (protected with `auth` middleware)
 
 Blog routes (defined in `routes/blog.js`)
@@ -98,12 +98,6 @@ Blog routes (defined in `routes/blog.js`)
 - GET  /blogs/allblogs — list all blogs (protected with `auth` middleware)
 - DELETE  /blogs/del-blog/:id — delete a particular bolg grom db (protected with `auth` middleware)
 - GET  /blogs/:id  — get a particular blog by id from db (protected with `auth` middleware)
-
-
-Notes:
-
-- `loginUser` is exposed as a GET endpoint in the current code. For security it's recommended to change this to POST and accept credentials in the request body.
-- The `del-blog` and `up-blog` routes in `routes/blog.js` currently call `auth` but do not have controller functions attached; you'll want to implement or wire controllers for those routes.
 
 ## Quick example (register + login)
 
@@ -120,16 +114,18 @@ Content-Type: application/json
 
 Login (current implementation expects query params):
 
-GET /auth/login?email=alice@example.com&password=pa55word
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "pa55word"
+}
 
 After login you should receive a JWT token which is required for protected routes.
 
 ## Project notes & next steps
 
-- Change `GET /auth/login` to `POST /auth/login` for better security and update the controller accordingly.
+
 - Implement controllers for blog update/delete and wire them into `routes/blog.js`.
 - Add request/response examples and tests. Consider adding a small Postman or HTTPie collection.
-
----
-
-If you'd like, I can make the suggested changes: convert login to POST, implement missing blog controllers, or add a sample Postman collection. Tell me which you'd prefer.
