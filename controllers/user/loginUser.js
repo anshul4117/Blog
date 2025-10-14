@@ -2,7 +2,6 @@ import User from '../../models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 const loginUser = async (req, res) => {
@@ -31,17 +30,32 @@ const loginUser = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
-        console.log(token);
-
-        res.status(200).json({
+        // console.log(token)
+        // res.status(200).json({
+        //     message: 'Login successful',
+        //     token,
+        //     user: {
+        //         id: user._id,
+        //         email: user.email,
+        //         username: user.username,
+        //     },
+        // });
+        const options = {
+            httpOnly: true,
+            expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
+        }
+        res.status(200)
+        .cookie('token', token, options)
+        .json({
+            success: true,
             message: 'Login successful',
-            token,
             user: {
                 id: user._id,
                 email: user.email,
-                username: user.username,
+                name: user.name,
             },
         });
+
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
