@@ -1,5 +1,4 @@
-import { get } from 'mongoose';
-import Blog from '../../models/blog';
+import Blog from '../../models/blog.js';
 
 const getBlogById = async(req,res)=>{
     try {
@@ -24,5 +23,31 @@ const getBlogById = async(req,res)=>{
             error: error.message
         })
     }
+};
+
+const deleteBlog = async(req,res)=>{
+    try {
+        const { id } = req.params;
+        const blog = await Blog.findByIdAndDelete(id);
+        if(!blog){
+            return res.status(404)
+            .json({
+                message: "Blog not found"
+            })
+        }
+        return res.status(200)
+        .json({
+            message: "Blog deleted successfully",
+            blog
+        });
+
+    } catch (error) {
+        return res.status(500)
+        .json({
+            message :"Error deleting a blog",
+            error: error.message
+        })
+    }
 }
-export default getBlogById;
+
+export  {getBlogById,deleteBlog};
