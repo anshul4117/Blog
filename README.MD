@@ -98,6 +98,7 @@ Blog routes (defined in `routes/blog.js`)
 - GET  /blogs/allblogs — list all blogs (protected with `auth` middleware)
 - DELETE  /blogs/del-blog/:id — delete a particular bolg grom db (protected with `auth` middleware)
 - GET  /blogs/:id  — get a particular blog by id from db (protected with `auth` middleware)
+- PATCH /blogs/edit/:id - update a particular blog by id from db (protected with `auth` middleware) (controller: `blogs.js`)
 
 ## Quick example (register + login)
 
@@ -126,6 +127,4 @@ After login you should receive a JWT token which is required for protected route
 
 ## Project notes & next steps
 
-
-- Implement controllers for blog update/delete and wire them into `routes/blog.js`.
 - Add request/response examples and tests. Consider adding a small Postman or HTTPie collection.
