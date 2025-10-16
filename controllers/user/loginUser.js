@@ -21,8 +21,6 @@ const loginUser = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-                 console.log(isMatch);
-
 
         // Generate JWT token
         const token = jwt.sign(
@@ -30,16 +28,6 @@ const loginUser = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
-        // console.log(token)
-        // res.status(200).json({
-        //     message: 'Login successful',
-        //     token,
-        //     user: {
-        //         id: user._id,
-        //         email: user.email,
-        //         username: user.username,
-        //     },
-        // });
         const options = {
             httpOnly: true,
             expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
