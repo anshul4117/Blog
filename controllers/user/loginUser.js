@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const loginUser = async (req, res) => {
+    // console.log(req.body);
     const { email, password } = req.body;
 
     try {
@@ -21,6 +22,7 @@ const loginUser = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
+        // console.log(isMatch);
 
         // Generate JWT token
         const token = jwt.sign(
@@ -30,8 +32,10 @@ const loginUser = async (req, res) => {
         );
         const options = {
             httpOnly: true,
+            secure: false,
             expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
         }
+        
         res.status(200)
         .cookie('token', token, options)
         .json({

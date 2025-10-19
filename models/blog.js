@@ -9,6 +9,9 @@ const blogSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-
+    // date: {
+    //     type: Date,
+    //     default: Date.now,
+    // },
 }, { timestamps: true });
 export default mongoose.models.Blog || mongoose.model('Blog', blogSchema);
