@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/create', auth, createBlog);
 router.get('/allblogs', auth, allBlogs);
-router.get('/:id', auth, getBlogById);
+router.get('/post/:id', auth, getBlogById);
 router.patch('/edit/:id', auth, updateBlog);
 router.delete('/del-blog/:id', auth, deleteBlog);
 
