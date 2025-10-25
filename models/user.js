@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        maxlength: 50,
     },
     email: {
         type: String,
@@ -14,16 +15,24 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    age: {
-        type: Number,
+    bio:{
+        type: String,
+        maxlength: 100,
     },
+    profession :{
+        type: String,
+        enum: ['Student', 'Engineer', 'Doctor', 'Artist', 'Actor','Business','HelthCare','Motivation','Other'],
+    },
+    // age: {
+    //     type: Number,
+    // },
     gender: {
         type: String,
         enum: ['Male', 'Female', 'Other'],
     },
     dob: {
         type: Date, 
-        default: Date.now
+        default: Date.now - 1000 * 60 * 60 * 24 * 365 * 18, // Default to 18 years ago
     },
     interests: {
         type: [String],
