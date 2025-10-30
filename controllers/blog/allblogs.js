@@ -8,16 +8,17 @@ const allBlogs = async (req, res) => {
     // 1️⃣ Try getting data from Redis
     const cachedBlogs = await redis.get(cacheKey);
     if (cachedBlogs) {
-      console.log("📦 Serving from cache");
+      // console.log("📦 Serving from cache");
       return res.status(200).json({
         message: "Blogs fetched successfully (from cache)",
+        length: JSON.parse(cachedBlogs).length,
         blogs: JSON.parse(cachedBlogs),
       });
     }
 
     // 2️⃣ If no cache, fetch from MongoDB
     const blogs = await Blog.find({})
-      .limit(10)
+      // .limit(10)
       .populate("userId", "name email");
 
     // 3️⃣ Store in Redis cache for 30 mins (1800 seconds)

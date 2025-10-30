@@ -23,9 +23,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['Student', 'Engineer', 'Doctor', 'Artist', 'Actor','Business','HelthCare','Motivation','Other'],
     },
-    // age: {
-    //     type: Number,
-    // },
     gender: {
         type: String,
         enum: ['Male', 'Female', 'Other'],

@@ -1,4 +1,6 @@
 import Blog from '../../models/blog.js';
+// import redis from '../../config/redisClient.js';
+import { invalidateUserBlogs, updateAllBlogsCacheAfterDelete } from '../../utils/helper/cacheHelper.js'
 
 const getBlogById = async (req, res) => {
     try {
@@ -28,6 +30,7 @@ const getBlogById = async (req, res) => {
 const deleteBlog = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.user.userId;
         const blog = await Blog.findByIdAndDelete(id);
         if (!blog) {
             return res.status(404)
@@ -35,6 +38,12 @@ const deleteBlog = async (req, res) => {
                     message: "Blog not found"
                 })
         }
+        // const cacheKey = `my_blogs:${userId}`;
+        // await redis.del(cacheKey);
+
+        await invalidateUserBlogs(userId);
+        await updateAllBlogsCacheAfterDelete(id);
+
         return res.status(200)
             .json({
                 message: "Blog deleted successfully",
