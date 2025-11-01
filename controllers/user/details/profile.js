@@ -3,7 +3,7 @@ import User from '../../../models/user.js';
 const userProfile = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const getProfile = await User.findById(userId);
+        const getProfile = await User.findById(userId).select("-password")
         if (!getProfile) {
             return res.status(404)
                 .json({
