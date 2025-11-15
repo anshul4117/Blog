@@ -1,3 +1,4 @@
+import redis from '../../config/redisClient.js';
 import Blog from '../../models/blog.js';
 
 const createBlog = async (req, res) => {
@@ -5,11 +6,11 @@ const createBlog = async (req, res) => {
         const { title, content } = req.body;
         // get user id from req.user set by auth middleware
         const userId = req.user.userId;
-        if( !title || !content){
+        if (!title || !content) {
             return res.status(400)
-            .json({
-                message:"Title and Content are required",
-            })
+                .json({
+                    message: "Title and Content are required",
+                })
         };
         const newBlog = new Blog({
             title,
@@ -17,20 +18,26 @@ const createBlog = async (req, res) => {
             userId,
             published: true,
         });
+
+        await redis.del("all_blogs");
+        await redis.del("my_blogs:" + userId);
+
+
+        console.log("New Blog : ", newBlog);
         await newBlog.save();
         return res.status(201)
-        .json({
-            message: "Blog created successfully",
-            blog: newBlog
-        });
+            .json({
+                message: "Blog created successfully",
+                blog: newBlog
+            });
 
 
     } catch (error) {
         return res.status(500)
-        .json({
-            message: "Error creating blog",
-            error: error.message
-        })
+            .json({
+                message: "Error creating blog",
+                error: error.message
+            })
     }
 }
 export default createBlog;
