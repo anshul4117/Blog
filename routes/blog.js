@@ -6,7 +6,7 @@ import { deleteBlog, getBlogById, updateBlog } from '../controllers/blog/blogs.j
 import myblogs from '../controllers/blog/myblogs.js';
 const router = express.Router();
 
-router.get('/allblogs', auth, allBlogs);
+router.get('/allblogs', allBlogs);
 router.post('/create', auth, createBlog);
 router.get('/post/:id', auth, getBlogById);
 router.get('/myblogs', auth, myblogs);
