@@ -1,2 +1,4 @@
 .env
 node_modules/
+PROJECT_ANALYSIS.md
+PRODUCTION_READY_GUIDE.md
