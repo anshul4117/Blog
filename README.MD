@@ -1,130 +1,436 @@
-# Day1-Blogging App — Server
+# Blogging App — Backend Server
 
-This directory contains the backend server for the Day1-Blogging App. It is a small Express + MongoDB API supporting user registration, login, and basic blog operations.
+A production-ready Express.js + MongoDB API for a blogging platform with user authentication, blog management, and Redis caching.
 
-## Table of contents
+## Table of Contents
 
-- Project structure
-- Requirements
-- Installation
-- Environment variables
-- Available scripts
-- API endpoints
-- Project notes & next steps
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [Available Scripts](#available-scripts)
+- [API Endpoints](#api-endpoints)
+- [Configuration](#configuration)
+- [Security](#security)
 
-## Project structure
+## Features
+
+✅ User authentication with JWT  
+✅ Blog CRUD operations  
+✅ Redis caching for performance  
+✅ Structured logging with Pino  
+✅ Security headers with Helmet  
+✅ Environment-based configuration  
+✅ Graceful shutdown handling  
+✅ MongoDB with Mongoose ORM  
+✅ Production-ready folder structure  
+
+## Tech Stack
+
+- **Runtime**: Node.js (v18+)
+- **Framework**: Express.js v5.1.0
+- **Database**: MongoDB + Mongoose v8.19.1
+- **Cache**: Redis + ioredis v5.8.2
+- **Auth**: JWT + bcrypt
+- **Security**: Helmet v7.2.0
+- **Logging**: Pino v8.21.0
+- **Validation**: Joi v17.13.3
+- **Dev Tools**: Nodemon, ESLint
+
+## Project Structure
 
 ```
-Server/
-├── controllers/
+src/
+├── config/              # Configuration files
+│   ├── index.js        # Environment config loader
+│   ├── logger.js       # Pino logger setup
+│   ├── db.js           # MongoDB connection
+│   └── redisClient.js  # Redis connection
+├── routes/             # Route handlers
+│   ├── auth.js         # User auth routes
+│   └── blog.js         # Blog CRUD routes
+├── controllers/        # Business logic
+│   ├── user/
+│   │   ├── createUser.js
+│   │   ├── loginUser.js
+│   │   ├── getAllUsers.js
+│   │   ├── updateProfile.js
+│   │   ├── details/
+│   │   │   ├── profile.js
+│   │   │   └── post.js
+│   │   └── service/
+│   │       └── changePassword.js
 │   ├── blog/
+│   │   ├── create.js
 │   │   ├── allblogs.js
 │   │   ├── blogs.js
-│   │   └── create.js
-│   └── user/
-│       ├── createUser.js
-│       ├── getAllUsers.js
-│       └── loginUser.js
-├── config/
-│   └── db.js
-├── middleware/
+│   │   └── myblogs.js
+│   └── explore/
+│       └── feed.js
+├── middleware/         # Custom middleware
 │   └── auth.js
-├── models/
-│   ├── blog.js
-│   └── user.js
-├── routes/
-│   ├── auth.js
+├── models/            # Database schemas
+│   ├── user.js
 │   └── blog.js
-├── server.js
-├── package.json
-├── .env.example
-└── README.MD
+├── utils/
+│   └── helper/
+│       └── cacheHelper.js
+├── app.js             # Express app setup
+└── server.js          # Server bootstrap
+
+tests/                 # Test files (ready for implementation)
+├── unit/
+├── integration/
+└── fixtures/
+
+.env.example           # Environment template
+.eslintrc.js          # Linting rules
+package.json          # Dependencies
 ```
 
 ## Requirements
 
-- Node.js (v16+ recommended)
-- npm
-- MongoDB (Atlas or local)
+- **Node.js** v18.0.0 or higher
+- **npm** v9.0.0 or higher
+- **MongoDB** (local or Atlas)
+- **Redis** (local or hosted)
 
 ## Installation
 
-1. Change to the `Server/` directory.
+1. Clone and enter the directory:
+
+```bash
+git clone <repository>
+cd Server
+```
+
 2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Copy `.env.example` to `.env` and fill in your values (see below).
-
-4. Start the server in development mode:
+3. Set up environment variables:
 
 ```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+4. Start the server:
+
+```bash
+# Development (with hot-reload)
 npm run dev
+
+# Production
+npm start
 ```
 
-## Environment variables
+## Environment Variables
 
-Create a `.env` file in `Server/` (do not commit it). The project includes `.env.example` with these keys:
+Create a `.env` file in the root directory. Required and optional variables:
 
+```bash
+# Application
+NODE_ENV=development          # development, staging, production
+PORT=5000
+APP_URL=http://localhost:5000
+CLIENT_URL=http://localhost:3000
+
+# Database
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/dbname
+DB_NAME=blogging_app
+
+# Cache
+REDIS_URL=redis://localhost:6379
+
+# Security
+JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+JWT_EXPIRY=7d
+
+# Logging
+LOG_LEVEL=info              # error, warn, info, debug
 ```
-PORT = 2000
-MONGO_URI = mongodb+srv://<username>:<password>@<cluster>/<dbname>
-JWT_SECRET = <your-jwt-secret>
+
+## Available Scripts
+
+```bash
+npm run dev          # Start with nodemon (development)
+npm start            # Start production server
+npm run test         # Run Jest tests
+npm run test:watch   # Watch mode for tests
+npm run lint         # Check code style
+npm run lint:fix     # Fix linting issues
+npm run migrate      # Run database migrations
 ```
 
-Replace placeholders with real values. `MONGO_URI` should point to your MongoDB instance.
+## API Endpoints
 
-## Available scripts
+### Base URL
+```
+http://localhost:5000/api/v1.2
+```
 
-- `npm run dev` — start the server with `nodemon server.js` (development)
+### Health Check
+```
+GET /health
+```
+Returns server status and environment info.
 
-The `package.json` currently defines only the `dev` script.
+### Authentication Routes (`/users`)
 
-## API endpoints (overview)
-
-Base URL: http://localhost:<PORT> (default: 2000)
-
-Auth routes (defined in `routes/auth.js`)
-
-- POST /auth/create — register a new user (controller: `createUser.js`)
-- POST  /auth/login  — login a user (controller: `loginUser.js`)
-- GET  /auth/allUsers — list all users (protected with `auth` middleware)
-
-Blog routes (defined in `routes/blog.js`)
-
-- POST /blogs/create — create a blog (protected with `auth` middleware)
-- GET  /blogs/allblogs — list all blogs (protected with `auth` middleware)
-- DELETE  /blogs/del-blog/:id — delete a particular bolg grom db (protected with `auth` middleware)
-- GET  /blogs/:id  — get a particular blog by id from db (protected with `auth` middleware)
-- PATCH /blogs/edit/:id - update a particular blog by id from db (protected with `auth` middleware) (controller: `blogs.js`)
-
-## Quick example (register + login)
-
-Register a user:
-
-POST /auth/create
+**Register User**
+```
+POST /users/create
 Content-Type: application/json
 
 {
-  "name": "Alice",
-  "email": "alice@example.com",
-  "password": "pa55word"
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "SecurePassword123"
 }
+```
 
-Login (current implementation expects query params):
-
-POST /auth/login
+**Login User**
+```
+POST /users/login
 Content-Type: application/json
 
 {
-  "email": "alice@example.com",
-  "password": "pa55word"
+  "email": "john@example.com",
+  "password": "SecurePassword123"
 }
+Response: { token: "jwt_token_here" }
+```
 
-After login you should receive a JWT token which is required for protected routes.
+**Get All Users** (Protected)
+```
+GET /users/allUsers
+Authorization: Bearer <token>
+```
 
-## Project notes & next steps
+**Update Profile** (Protected)
+```
+PATCH /users/edit-user/:id
+Authorization: Bearer <token>
+Content-Type: application/json
 
-- Add request/response examples and tests. Consider adding a small Postman or HTTPie collection.
+{
+  "name": "Updated Name",
+  "email": "newemail@example.com"
+}
+```
+
+**Get User Profile** (Protected)
+```
+GET /users/profile
+Authorization: Bearer <token>
+```
+
+**Change Password** (Protected)
+```
+PATCH /users/change-password
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "currentPassword": "OldPassword123",
+  "newPassword": "NewPassword456"
+}
+```
+
+### Blog Routes (`/blogs`)
+
+**Get All Blogs**
+```
+GET /blogs/allblogs
+```
+
+**Create Blog** (Protected)
+```
+POST /blogs/create
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "title": "My First Blog",
+  "content": "Blog content goes here..."
+}
+```
+
+**Get Blog by ID** (Protected)
+```
+GET /blogs/post/:id
+Authorization: Bearer <token>
+```
+
+**Get My Blogs** (Protected)
+```
+GET /blogs/myblogs
+Authorization: Bearer <token>
+```
+
+**Update Blog** (Protected)
+```
+PATCH /blogs/edit/:id
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "title": "Updated Title",
+  "content": "Updated content..."
+}
+```
+
+**Delete Blog** (Protected)
+```
+DELETE /blogs/del-blog/:id
+Authorization: Bearer <token>
+```
+
+## Configuration
+
+### Logger Setup
+
+The application uses **Pino** for structured logging:
+- **Development**: Pretty-printed logs with colors
+- **Production**: JSON formatted logs for machine parsing
+- Logs include timestamps, request details, and error traces
+
+```javascript
+// Access logger in code
+import logger from './config/logger.js';
+logger.info('Message', { data: 'value' });
+```
+
+### Security Features
+
+✅ **Helmet**: Sets secure HTTP headers  
+✅ **CORS**: Configured with `CLIENT_URL`  
+✅ **JWT**: Signed tokens for authentication  
+✅ **Bcrypt**: Password hashing  
+✅ **Rate Limiting**: Ready for implementation  
+
+### Config Management
+
+Environment variables are loaded and validated on startup:
+- Required variables trigger immediate exit if missing (production)
+- Config object is frozen to prevent runtime modifications
+- All values type-checked and validated
+
+## Development Workflow
+
+### Running Tests
+```bash
+# Run all tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm test -- --coverage
+```
+
+### Code Quality
+```bash
+# Lint check
+npm run lint
+
+# Auto-fix linting issues
+npm run lint:fix
+```
+
+### Database Migrations
+```bash
+npm run migrate
+```
+
+## Deployment
+
+### Production Setup
+
+1. Set `NODE_ENV=production` in `.env`
+2. Use production database and Redis URLs
+3. Set strong `JWT_SECRET` (minimum 32 characters)
+4. Run with `npm start` or process manager (PM2)
+
+### Docker (Optional)
+
+```bash
+# Build
+docker build -f docker/Dockerfile -t blogging-app .
+
+# Run
+docker run -p 5000:5000 --env-file .env blogging-app
+```
+
+## Error Handling
+
+The API returns standardized error responses:
+
+```json
+{
+  "message": "Error description",
+  "status": 400,
+  "timestamp": "2025-12-31T20:10:58.908Z"
+}
+```
+
+Common status codes:
+- `200` - Success
+- `201` - Created
+- `400` - Bad Request
+- `401` - Unauthorized
+- `403` - Forbidden
+- `404` - Not Found
+- `500` - Internal Server Error
+
+## Troubleshooting
+
+**Server won't start?**
+- Check `.env` file exists and has valid values
+- Verify MongoDB and Redis connections
+- Check port 5000 is available
+
+**Import errors?**
+- Ensure all files use ES Module syntax (import/export)
+- Check relative paths start from `src/` directory
+- Clear node_modules and reinstall: `rm -rf node_modules && npm install`
+
+**Database connection issues?**
+- Verify `MONGO_URI` format
+- Check whitelist IP in MongoDB Atlas
+- Test connection: `mongosh <MONGO_URI>`
+
+**Redis connection issues?**
+- Verify `REDIS_URL` is correct
+- Ensure Redis service is running
+- Check firewall/network settings
+
+## Next Steps
+
+1. ✅ Configure environment variables
+2. ✅ Start development server
+3. ⏳ Add request validation with Joi
+4. ⏳ Implement comprehensive tests
+5. ⏳ Add API documentation (Swagger/OpenAPI)
+6. ⏳ Set up CI/CD pipelines
+7. ⏳ Containerize with Docker
+8. ⏳ Deploy to production
+
+## Additional Resources
+
+- [PRODUCTION_FOLDER_STRUCTURE.md](./PRODUCTION_FOLDER_STRUCTURE.md) - Detailed folder structure guide
+- [DEVELOPMENT_TO_PRODUCTION_GUIDE.md](./DEVELOPMENT_TO_PRODUCTION_GUIDE.md) - Full production setup guide
+- [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) - What was implemented in this phase
+- [Express.js Documentation](https://expressjs.com/)
+- [MongoDB/Mongoose Docs](https://mongoosejs.com/)
+- [Pino Logger Docs](https://getpino.io/)
+
+## License
+
+ISC
