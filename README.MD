@@ -131,128 +131,45 @@ npm start
 
 ## Environment Variables
 
-Create a `.env` file in the root directory. Required and optional variables:
+Create a `.env` file in `Server/` (do not commit it). The project includes `.env.example` with these keys:
 
-```bash
-# Application
-NODE_ENV=development          # development, staging, production
-PORT=5000
-APP_URL=http://localhost:5000
-CLIENT_URL=http://localhost:3000
-
-# Database
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/dbname
-DB_NAME=blogging_app
-
-# Cache
-REDIS_URL=redis://localhost:6379
-
-# Security
-JWT_SECRET=your-super-secret-jwt-key-min-32-chars
-JWT_EXPIRY=7d
-
-# Logging
-LOG_LEVEL=info              # error, warn, info, debug
+```
+PORT = 2000
+MONGO_URI = mongodb_uri_here
+JWT_SECRET = <your-jwt-secret>
 ```
 
-## Available Scripts
+Replace placeholders with real values. `MONGO_URI` should point to your MongoDB instance.
 
-```bash
-npm run dev          # Start with nodemon (development)
-npm start            # Start production server
-npm run test         # Run Jest tests
-npm run test:watch   # Watch mode for tests
-npm run lint         # Check code style
-npm run lint:fix     # Fix linting issues
-npm run migrate      # Run database migrations
-```
+## Available scripts
 
-## API Endpoints
+- `npm run dev` — start the server with `nodemon server.js` (development)
 
-### Base URL
-```
-http://localhost:5000/api/v1.2
-```
+The `package.json` currently defines only the `dev` script.
 
-### Health Check
-```
-GET /health
-```
-Returns server status and environment info.
+## API endpoints (overview)
 
-### Authentication Routes (`/users`)
+Base URL: http://localhost:<PORT> (default: 2000)
 
-**Register User**
-```
-POST /users/create
-Content-Type: application/json
+Auth routes (defined in `routes/auth.js`)
 
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "SecurePassword123"
-}
-```
+- POST /auth/create — register a new user (controller: `createUser.js`)
+- POST  /auth/login  — login a user (controller: `loginUser.js`)
+- GET  /auth/allUsers — list all users (protected with `auth` middleware)
 
-**Login User**
-```
-POST /users/login
-Content-Type: application/json
+Blog routes (defined in `routes/blog.js`)
 
-{
-  "email": "john@example.com",
-  "password": "SecurePassword123"
-}
-Response: { token: "jwt_token_here" }
-```
+- POST /blogs/create — create a blog (protected with `auth` middleware)
+- GET  /blogs/allblogs — list all blogs (protected with `auth` middleware)
+- DELETE  /blogs/del-blog/:id — delete a particular bolg grom db (protected with `auth` middleware)
+- GET  /blogs/:id  — get a particular blog by id from db (protected with `auth` middleware)
+- PATCH /blogs/edit/:id - update a particular blog by id from db (protected with `auth` middleware) (controller: `blogs.js`)
 
-**Get All Users** (Protected)
-```
-GET /users/allUsers
-Authorization: Bearer <token>
-```
+## Quick example (register + login)
 
-**Update Profile** (Protected)
-```
-PATCH /users/edit-user/:id
-Authorization: Bearer <token>
-Content-Type: application/json
+Register a user:
 
-{
-  "name": "Updated Name",
-  "email": "newemail@example.com"
-}
-```
-
-**Get User Profile** (Protected)
-```
-GET /users/profile
-Authorization: Bearer <token>
-```
-
-**Change Password** (Protected)
-```
-PATCH /users/change-password
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "currentPassword": "OldPassword123",
-  "newPassword": "NewPassword456"
-}
-```
-
-### Blog Routes (`/blogs`)
-
-**Get All Blogs**
-```
-GET /blogs/allblogs
-```
-
-**Create Blog** (Protected)
-```
-POST /blogs/create
-Authorization: Bearer <token>
+POST /auth/create
 Content-Type: application/json
 
 {
