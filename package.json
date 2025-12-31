@@ -1,13 +1,26 @@
 {
-  "name": "server",
+  "name": "blogging-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "Professional blogging platform",
   "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "dev": "nodemon server.js"
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=18.0.0"
   },
-  "keywords": [],
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "migrate": "node scripts/migrate.js"
+  },
+  "keywords": [
+    "blog",
+    "nodejs",
+    "express"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -17,10 +30,18 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "helmet": "^7.2.0",
     "ioredis": "^5.8.2",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
+    "pino": "^8.21.0",
+    "pino-pretty": "^10.3.1",
     "redis": "^5.9.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "nodemon": "^3.0.2"
   }
 }
