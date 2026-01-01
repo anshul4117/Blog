@@ -13,7 +13,7 @@ A production-ready Express.js + MongoDB API for a blogging platform with user au
 - [Available Scripts](#available-scripts)
 - [API Endpoints](#api-endpoints)
 - [Configuration](#configuration)
-- [Security](#security)
+- [Security Features](#security)
 
 ## Features
 
@@ -147,7 +147,7 @@ Replace placeholders with real values. `MONGO_URI` should point to your MongoDB 
 
 The `package.json` currently defines only the `dev` script.
 
-## API endpoints (overview)
+## API Endpoints (overview)
 
 Base URL: http://localhost:<PORT> (default: 2000)
 
