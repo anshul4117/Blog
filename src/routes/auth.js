@@ -8,11 +8,14 @@ import { userProfile } from '../controllers/user/details/profile.js';
 import { changePassword } from '../controllers/user/service/changePassword.js';
 const router = express.Router();
 
-router.post('/create', createUser);
-router.post('/login', loginUser);
+import { validateRequest } from '../middleware/validateRequest.js';
+import { registerUserSchema, loginUserSchema } from '../validators/userValidator.js';
+
+router.post('/create', validateRequest(registerUserSchema), createUser);
+router.post('/login', validateRequest(loginUserSchema), loginUser);
 router.get('/allUsers', auth, allUsers);
 router.patch('/edit-user/:id', auth, updateProfile);
 router.get('/profile', auth, userProfile);
-router.patch('/change-password',auth, changePassword);
+router.patch('/change-password', auth, changePassword);
 
 export default router;  
