@@ -5,6 +5,8 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import logger from './config/logger.js';
 import config from './config/index.js';
+import AppError from './utils/AppError.js';
+import errorHandler from './middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -64,29 +66,11 @@ app.get('/', (req, res) => {
 });
 
 // 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Not Found' });
+app.use((req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Error handler middleware
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  logger.error({
-    message: err.message,
-    stack: err.stack,
-    path: req.path,
-  });
-
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
-
-  res.status(statusCode).json({
-    error: {
-      message,
-      code: err.code || 'INTERNAL_ERROR',
-      timestamp: new Date().toISOString(),
-    },
-  });
-});
+// Global Error Handler
+app.use(errorHandler);
 
 export default app;

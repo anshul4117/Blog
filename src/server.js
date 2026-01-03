@@ -8,7 +8,8 @@ connectDB();
 
 // Start server
 const server = app.listen(config.PORT, () => {
-  logger.info(`Server running on ${config.APP_URL}`);
+  logger.info(`Server running on port ${config.PORT}`);
+  logger.info(`App URL: ${config.APP_URL}`);
   logger.info(`Environment: ${config.NODE_ENV}`);
 });
 
