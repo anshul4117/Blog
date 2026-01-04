@@ -1,39 +1,27 @@
-import redis from '../../config/redisClient.js';
 import Blog from '../../models/blog.js';
+import APIFeatures from '../../utils/apiFeatures.js';
 
-const allBlogs = async (req, res) => {
+const allBlogs = async (req, res, next) => {
   try {
-    const cacheKey = 'all_blogs';
+    // Execute Query
+    const features = new APIFeatures(Blog.find().populate('userId', 'name email'), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
-    // 1️⃣ Try getting data from Redis
-    const cachedBlogs = await redis.get(cacheKey);
-    if (cachedBlogs) {
-      // console.log("📦 Serving from cache");
-      return res.status(200).json({
-        message: 'Blogs fetched successfully (from cache)',
-        length: JSON.parse(cachedBlogs).length,
-        blogs: JSON.parse(cachedBlogs),
-      });
-    }
+    const blogs = await features.query;
 
-    // 2️⃣ If no cache, fetch from MongoDB
-    const blogs = await Blog.find({})
-      // .limit(10)
-      .populate('userId', 'name email');
-
-    // 3️⃣ Store in Redis cache for 30 mins (1800 seconds)
-    await redis.set(cacheKey, JSON.stringify(blogs), 'EX', 1800);
-
-    // 4️⃣ Return response
-    return res.status(200).json({
-      message: 'Blogs fetched successfully',
-      blogs,
+    // Send Response
+    res.status(200).json({
+      status: 'success',
+      results: blogs.length,
+      data: {
+        blogs,
+      }
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Error fetching blogs',
-      error: error.message,
-    });
+    next(error);
   }
 };
 
