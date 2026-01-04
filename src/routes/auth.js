@@ -10,9 +10,10 @@ const router = express.Router();
 
 import { validateRequest } from '../middleware/validateRequest.js';
 import { registerUserSchema, loginUserSchema } from '../validators/userValidator.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
 
 router.post('/create', validateRequest(registerUserSchema), createUser);
-router.post('/login', validateRequest(loginUserSchema), loginUser);
+router.post('/login', authLimiter, validateRequest(loginUserSchema), loginUser);
 router.get('/allUsers', auth, allUsers);
 router.patch('/edit-user/:id', auth, updateProfile);
 router.get('/profile', auth, userProfile);

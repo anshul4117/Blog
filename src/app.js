@@ -7,6 +7,7 @@ import logger from './config/logger.js';
 import config from './config/index.js';
 import AppError from './utils/AppError.js';
 import errorHandler from './middleware/errorHandler.js';
+import { generalLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
+app.use('/api', generalLimiter);
 
 // CORS middleware
 app.use(
