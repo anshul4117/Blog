@@ -1,4 +1,5 @@
 import express from 'express';
+import { pinoHttp } from 'pino-http';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -31,14 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Request logging middleware
-app.use((req, res, next) => {
-  logger.info({
-    method: req.method,
-    path: req.path,
-    ip: req.ip,
-  });
-  next();
-});
+app.use(pinoHttp({ logger }));
 
 // Routes
 import authRoute from './routes/auth.js';
