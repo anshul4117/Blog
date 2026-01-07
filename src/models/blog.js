@@ -9,7 +9,7 @@ const blogSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  userId:{
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
@@ -22,4 +22,6 @@ const blogSchema = new mongoose.Schema({
     default: false,
   },
 }, { timestamps: true });
+blogSchema.index({ title: 'text', content: 'text' });
+
 export default mongoose.models.Blog || mongoose.model('Blog', blogSchema);

@@ -5,6 +5,7 @@ const allBlogs = async (req, res, next) => {
   try {
     // Execute Query
     const features = new APIFeatures(Blog.find().populate('userId', 'name email'), req.query)
+      .search()
       .filter()
       .sort()
       .limitFields()

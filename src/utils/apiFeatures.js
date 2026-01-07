@@ -4,6 +4,15 @@ class APIFeatures {
         this.queryString = queryString;
     }
 
+    search() {
+        if (this.queryString.search) {
+            this.query = this.query.find({
+                $text: { $search: this.queryString.search },
+            });
+        }
+        return this;
+    }
+
     filter() {
         const queryObj = { ...this.queryString };
         const excludedFields = ['page', 'sort', 'limit', 'fields'];
