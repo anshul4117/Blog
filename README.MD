@@ -13,19 +13,31 @@ A production-ready Express.js + MongoDB API for a blogging platform with user au
 - [Available Scripts](#available-scripts)
 - [API Endpoints](#api-endpoints)
 - [Configuration](#configuration)
-- [Security Features](#security)
+- [Security Features](#security-features)
+- [Query Features](#query-features)
+- [Full Implementation Log](IMPLEMENTATION_SUMMARY.md)
 
 ## Features
 
-✅ User authentication with JWT  
-✅ Blog CRUD operations  
-✅ Redis caching for performance  
-✅ Structured logging with Pino  
-✅ Security headers with Helmet  
-✅ Environment-based configuration  
-✅ Graceful shutdown handling  
-✅ MongoDB with Mongoose ORM  
-✅ Production-ready folder structure  
+### Core Features
+- **User Authentication**: Register, Login, Logout (JWT-based).
+- **Blog Management**: Create, Read, Update, Delete blogs.
+- **User Profile**: View and update profile details.
+
+### Production Features (New) 🚀
+- **Robust Validation**: `Joi` schemas for strict data integrity.
+- **Security**:
+  - `Helmet` for secure HTTP headers.
+  - `Rate Limiting` to prevent spam and brute-force (100 req/15min).
+- **Reliability**:
+  - **Centralized Error Handling**: Standardized JSON error responses.
+  - **Graceful Shutdown**: Prevents data corruption during restarts.
+- **Observability**: High-performance structured logging with `Pino`.
+- **Advanced Querying**:
+  - **Pagination**: `?page=1&limit=10`
+  - **Search**: `?search=keyword` (Full-text search)
+  - **Sorting**: `?sort=-createdAt`
+  - **Field Selection**: `?fields=title,content`
 
 ## Tech Stack
 
@@ -149,12 +161,18 @@ The `package.json` currently defines only the `dev` script.
 
 ## API Endpoints (overview)
 
-Base URL: http://localhost:<PORT> (default: 2000)
+Base URL: `http://localhost:2000` (or `PORT` in .env)
 
-Auth routes (defined in `routes/auth.js`)
+### Authentication
+- `POST /api/v1.2/users/create` - Register
+- `POST /api/v1.2/users/login` - Login (Rate Limited: 5 attempts/hour)
 
-- POST /auth/create — register a new user (controller: `createUser.js`)
-- POST  /auth/login  — login a user (controller: `loginUser.js`)
+### Blogs
+- `GET /api/v1.2/blogs/allblogs` - Get all blogs
+  - **Search**: `?search=react`
+  - **Pagination**: `?page=1&limit=5`
+  - **Sort**: `?sort=-createdAt` (newest first)
+- `POST /api/v1.2/blogs/create-blog` - Create new blog
 - GET  /auth/allUsers — list all users (protected with `auth` middleware)
 
 Blog routes (defined in `routes/blog.js`)
