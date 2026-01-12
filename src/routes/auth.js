@@ -6,6 +6,8 @@ import auth from '../middleware/auth.js';
 import updateProfile from '../controllers/user/updateProfile.js';
 import { userProfile } from '../controllers/user/details/profile.js';
 import { changePassword } from '../controllers/user/service/changePassword.js';
+import refreshToken from '../controllers/user/refreshToken.js';
+import logoutUser from '../controllers/user/logoutUser.js';
 const router = express.Router();
 
 import { validateRequest } from '../middleware/validateRequest.js';
@@ -18,5 +20,7 @@ router.get('/allUsers', auth, allUsers);
 router.patch('/edit-user/:id', auth, updateProfile);
 router.get('/profile', auth, userProfile);
 router.patch('/change-password', auth, changePassword);
+router.post('/refresh-token', refreshToken);
+router.post('/logout', logoutUser);
 
 export default router;  

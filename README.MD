@@ -166,6 +166,8 @@ Base URL: `http://localhost:2000` (or `PORT` in .env)
 ### Authentication
 - `POST /api/v1.2/users/create` - Register
 - `POST /api/v1.2/users/login` - Login (Rate Limited: 5 attempts/hour)
+- `POST /api/v1.2/users/refresh-token` - Get new Access Token
+- `POST /api/v1.2/users/logout` - Logout (Invalidates Refresh Token)
 
 ### Blogs
 - `GET /api/v1.2/blogs/allblogs` - Get all blogs

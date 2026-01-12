@@ -1,56 +1,71 @@
 import User from '../../models/user.js';
+import RefreshToken from '../../models/RefreshToken.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const loginUser = async (req, res) => {
-  // console.log(req.body);
-  const { email, password } = req.body;
-
+const loginUser = async (req, res, next) => {
   try {
-       
-    // Check if user exists
+    const { email, password } = req.body;
+
+    // 1. Check if user exists
     const user = await User.findOne({ email });
-    // .select('-password');
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ status: 'fail', message: 'Invalid credentials' });
     }
 
-    // Compare password
+    // 2. Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ status: 'fail', message: 'Invalid credentials' });
     }
-    // console.log(isMatch);
 
-    // Generate JWT token
-    const token = jwt.sign(
+    // 3. Generate Access Token (Short-lived: 15m)
+    const accessToken = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: config.JWT_EXPIRY || '15m' }
     );
-    const options = {
-      httpOnly: true,
-      secure: false,
-      expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
-    };
-        
-    res.status(200)
-      .cookie('token', token, options)
-      .json({
-        success: true,
-        message: 'Login successful',
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-        },
-      });
+
+    // 4. Generate Refresh Token (Long-lived: 7d)
+    const expiredAt = new Date();
+    expiredAt.setDate(expiredAt.getDate() + 7); // 7 days from now
+
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.REFRESH_TOKEN_SECRET || 'refreshSecretKey', // Fallback for dev
+      { expiresIn: '7d' }
+    );
+
+    // 5. Store Refresh Token in DB
+    await RefreshToken.create({
+      token: refreshToken,
+      userId: user._id,
+      expiryDate: expiredAt,
+    });
+
+    // 6. Send Response
+    // We send tokens in Body for flexibility (Client stores in memory/storage)
+    // Optionally also set cookies if needed, but Body is standard for mobile/SPA.
+    res.status(200).json({
+      status: 'success',
+      message: 'Login successful',
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+      },
+    });
 
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    next(error);
   }
 };
+
+// Quick config helper since we didn't import the full config object above
+const config = { JWT_EXPIRY: '15m' };
 
 export default loginUser;
