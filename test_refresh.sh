@@ -4,8 +4,8 @@ BASE_URL="http://localhost:2001/api/v1.2/users"
 EMAIL="test@example.com"
 PASSWORD="Password123!"
 
-# Ensure user exists (optional, mostly rely on existing data or recreate)
-# curl -s -X POST "$BASE_URL/create" -H "Content-Type: application/json" -d "{\"name\":\"Test User\",\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\",\"age\":25,\"gender\":\"male\"}" > /dev/null
+# Ensure user exists
+curl -s -X POST "$BASE_URL/create" -H "Content-Type: application/json" -d "{\"name\":\"Test User\",\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\",\"age\":25,\"gender\":\"male\"}" > /dev/null
 
 echo "1. Logging in..."
 LOGIN_RES=$(curl -s -X POST "$BASE_URL/login" \

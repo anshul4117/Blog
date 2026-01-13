@@ -41,8 +41,7 @@
     "pino": "^8.21.0",
     "pino-http": "^11.0.0",
     "pino-pretty": "^10.3.1",
-    "redis": "^5.9.0",
-    "xss-clean": "^0.1.4"
+    "redis": "^5.9.0"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
