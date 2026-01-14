@@ -23,7 +23,7 @@ const loginUser = async (req, res, next) => {
 
     // 3. Generate Access Token (Short-lived: 15m)
     const accessToken = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: config.JWT_EXPIRY || '15m' }
     );
@@ -57,6 +57,10 @@ const loginUser = async (req, res, next) => {
         id: user._id,
         email: user.email,
         name: user.name,
+        username: user.username,
+        role: user.role,
+        profilePicture: user.profilePicture,
+        socialLinks: user.socialLinks,
       },
     });
 

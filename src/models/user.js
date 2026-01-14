@@ -15,21 +15,45 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  bio:{
+  bio: {
     type: String,
     maxlength: 100,
   },
-  profession :{
+  profession: {
     type: String,
-    enum: ['Student', 'Engineer', 'Doctor', 'Artist', 'Actor','Business','HelthCare','Motivation','Other'],
+    enum: ['Student', 'Engineer', 'Doctor', 'Artist', 'Actor', 'Business', 'HelthCare', 'Motivation', 'Other'],
   },
   gender: {
     type: String,
     enum: ['Male', 'Female', 'Other'],
   },
   dob: {
-    type: Date, 
-    default: Date.now - 1000 * 60 * 60 * 24 * 365 * 18, // Default to 18 years ago
+    type: Date,
+  },
+  username: {
+    type: String,
+    unique: true,
+    trim: true,
+    sparse: true, // Allows null/undefined to be unique (though we'll ensure it's set)
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+  },
+  profilePicture: {
+    type: String,
+    default: '',
+  },
+  socialLinks: {
+    linkedin: String,
+    github: String,
+    twitter: String,
+    website: String,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
   },
   interests: {
     type: [String],

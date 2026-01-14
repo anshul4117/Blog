@@ -2,8 +2,8 @@ import User from '../../models/user.js';
 
 const updateProfile = async (req, res) => {
   try {
-    const { id } = req.params || req.user.userId; // assuming user ID is passed as a URL parameter or from authenticated user
-    const { name, bio, profession, gender, dob, interests } = req.body;
+    const { id } = req.params || req.user.id; // assuming user ID is passed as a URL parameter or from authenticated user
+    const { name, bio, profession, gender, dob, interests, profilePicture, socialLinks } = req.body;
 
     // Check if user ID is provided
     if (!id) {
@@ -49,7 +49,7 @@ const updateProfile = async (req, res) => {
     // Update user profile
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { name, bio, profession, gender, dob, interests },
+      { name, bio, profession, gender, dob, interests, profilePicture, socialLinks },
       { new: true }
     );
 
