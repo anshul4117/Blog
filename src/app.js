@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
+import { mongoSanitize } from './middleware/cleanMongo.js';
 import logger from './config/logger.js';
 import config from './config/index.js';
 import AppError from './utils/AppError.js';

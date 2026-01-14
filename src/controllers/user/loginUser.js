@@ -46,7 +46,7 @@ const loginUser = async (req, res, next) => {
     });
 
     // 6. Send Response
-    // We send tokens in Body for flexibility (Client stores in memory/storage)
+    // We send tokens in Body for flexibility (Client stores in memo ry/storage)
     // Optionally also set cookies if needed, but Body is standard for mobile/SPA.
     res.status(200).json({
       status: 'success',
