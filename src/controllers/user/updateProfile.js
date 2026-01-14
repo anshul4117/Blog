@@ -1,9 +1,17 @@
+import config from '../../config/index.js';
 import User from '../../models/user.js';
 
 const updateProfile = async (req, res) => {
   try {
     const { id } = req.params || req.user.id; // assuming user ID is passed as a URL parameter or from authenticated user
-    const { name, bio, profession, gender, dob, interests, profilePicture, socialLinks } = req.body;
+    let { name, bio, profession, gender, dob, interests, profilePicture, socialLinks } = req.body;
+
+    // Handle File Upload
+    if (req.file) {
+      // Construct URL: http://localhost:5000/uploads/profiles/filename.jpg
+      const profileUrl = `${config.APP_URL}/uploads/profiles/${req.file.filename}`;
+      profilePicture = profileUrl;
+    }
 
     // Check if user ID is provided
     if (!id) {
