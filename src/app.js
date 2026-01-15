@@ -35,6 +35,11 @@ app.use(cookieParser());
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
 
+// Data sanitization against XSS
+import { xssSanitizer } from './middleware/xss.js';
+app.use(xssSanitizer);
+
+
 // Request logging middleware
 app.use(pinoHttp({ logger }));
 

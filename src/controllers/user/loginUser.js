@@ -1,3 +1,4 @@
+import config from '../../config/index.js';
 import User from '../../models/user.js';
 import RefreshToken from '../../models/RefreshToken.js';
 import bcrypt from 'bcrypt';
@@ -21,11 +22,11 @@ const loginUser = async (req, res, next) => {
       return res.status(400).json({ status: 'fail', message: 'Invalid credentials' });
     }
 
-    // 3. Generate Access Token (Short-lived: 15m)
+    // 3. Generate Access Token (Short-lived)
     const accessToken = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: config.JWT_EXPIRY || '15m' }
+      { expiresIn: config.jwt.expiry || '15m' }
     );
 
     // 4. Generate Refresh Token (Long-lived: 7d)
@@ -46,8 +47,6 @@ const loginUser = async (req, res, next) => {
     });
 
     // 6. Send Response
-    // We send tokens in Body for flexibility (Client stores in memo ry/storage)
-    // Optionally also set cookies if needed, but Body is standard for mobile/SPA.
     res.status(200).json({
       status: 'success',
       message: 'Login successful',
@@ -74,8 +73,5 @@ const loginUser = async (req, res, next) => {
     next(error);
   }
 };
-
-// Quick config helper since we didn't import the full config object above
-const config = { JWT_EXPIRY: '15m' };
 
 export default loginUser;

@@ -6,7 +6,8 @@ const updateProfile = async (req, res) => {
     const { id } = req.params || req.user.id; // assuming user ID is passed as a URL parameter or from authenticated user
     let { name, bio, profession, gender, dob, interests, profilePicture, socialLinks } = req.body;
 
-    console.log("file : ", req.file);
+    // console.log("file : ", req.file);
+
     // Handle File Upload
     if (req.file) {
       // Cloudinary returns the full URL in req.file.path

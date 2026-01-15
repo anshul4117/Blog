@@ -72,9 +72,11 @@ A Node.js/Express backend server for a blogging platform with user authenticatio
 - `POST /create` - Register new user
 - `POST /login` - Login user (sets JWT cookie)
 - `GET /allUsers` - List all users (protected)
-- `PATCH /edit-user/:id` - Update user profile (protected)
+- `PATCH /edit-user/:id` - Update user profile (protected, supports image upload)
 - `GET /profile` - Get current user profile (protected)
 - `PATCH /change-password` - Change password (protected)
+- `POST /refresh-token` - Refresh access token
+- `POST /logout` - Logout user
 
 #### Blog Routes (`/api/v1.2/blogs`)
 - `GET /allblogs` - Get all published blogs (cached)
@@ -282,6 +284,9 @@ Blog
 - Data validation
 - CORS setup
 - Protected routes
+- Request logging (Pino)
+- Input validation (Joi schemas)
+- Refresh token implementation
 
 ### Partially Implemented ⚠️
 - Error handling (basic try-catch blocks)

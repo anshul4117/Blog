@@ -1,17 +1,9 @@
-import Blog from '../../models/blog.js';
-import APIFeatures from '../../utils/apiFeatures.js';
+import blogService from '../../services/blogService.js';
 
 const allBlogs = async (req, res, next) => {
   try {
-    // Execute Query
-    const features = new APIFeatures(Blog.find().populate('userId', 'name email'), req.query)
-      .search()
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-
-    const blogs = await features.query;
+    // Delegate to Service Layer (Handles Caching & DB)
+    const blogs = await blogService.getAllBlogs(req.query);
 
     // Send Response
     res.status(200).json({
