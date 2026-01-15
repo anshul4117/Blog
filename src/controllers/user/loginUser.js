@@ -61,6 +61,12 @@ const loginUser = async (req, res, next) => {
         role: user.role,
         profilePicture: user.profilePicture,
         socialLinks: user.socialLinks,
+        dateOfJoin: user.dateOfJoin,
+        interests: user.interests,
+        dob: user.dob,
+        gender: user.gender,
+        bio: user.bio,
+        profession: user.profession,
       },
     });
 

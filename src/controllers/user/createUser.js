@@ -41,7 +41,8 @@ const createUser = async (req, res) => {
         email,
         password: hashedPassword,
         username: finalUsername,
-        role: 'user', // Force default
+        role: 'user', // Force default,
+        dateOfJoin: Date.now(),
         socialLinks: socialLinks || {}
       }
     );

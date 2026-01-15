@@ -57,6 +57,10 @@ const userSchema = new mongoose.Schema({
   },
   interests: {
     type: [String],
+  },
+  dateOfJoin: {
+    type: Date,
+    required: true
   }
 }, { timestamps: true });
 
