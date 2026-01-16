@@ -3,7 +3,7 @@ import { deleteFromCloudinary } from '../../utils/cloudinaryHelper.js';
 
 const deleteProfilePicture = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.userId;
 
         // 1. Find User
         const user = await User.findById(userId);

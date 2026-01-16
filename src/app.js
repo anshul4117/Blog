@@ -46,8 +46,7 @@ app.use(pinoHttp({ logger }));
 // Routes
 import authRoute from './routes/auth.js';
 import blogRoute from './routes/blog.js';
-
-
+import followRoute from './routes/follow.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -55,10 +54,13 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ...
+
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 app.use('/api/v1.2/users', authRoute);
+app.use('/api/v1.2/users', followRoute); // Extends user routes
 app.use('/api/v1.2/blogs', blogRoute);
 
 // Health check endpoint
