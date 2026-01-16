@@ -1,5 +1,6 @@
 import config from '../../config/index.js';
 import User from '../../models/user.js';
+import { deleteFromCloudinary } from '../../utils/cloudinaryHelper.js';
 
 const updateProfile = async (req, res) => {
   try {
@@ -20,6 +21,14 @@ const updateProfile = async (req, res) => {
         .json({
           message: 'User Not Found',
         });
+    }
+
+    // 1. If new image uploaded, delete the old one
+    if (req.file) {
+      const existingUser = await User.findById(id);
+      if (existingUser && existingUser.profilePicture) {
+        await deleteFromCloudinary(existingUser.profilePicture);
+      }
     }
 
     // Validation for name length
