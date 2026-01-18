@@ -29,9 +29,9 @@ const likeService = {
             return { status: 'unliked' };
         } else {
             // Like
-            await Like.create({ userId, targetId, targetType });
+            const newLike = await Like.create({ userId, targetId, targetType });
             logger.info(`User ${userId} liked ${targetType} ${targetId}`);
-            return { status: 'liked' };
+            return { status: 'liked', likedAt: newLike.createdAt };
         }
     },
 
