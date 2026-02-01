@@ -3,7 +3,8 @@ import followService from '../../services/followService.js';
 const followController = {
     async follow(req, res, next) {
         try {
-            const followerId = req.user.userId;
+
+            const followerId = req.user.id;
             const targetUserId = req.params.id;
 
             await followService.followUser(followerId, targetUserId);
