@@ -12,7 +12,7 @@ export const generateAccessToken = (user) => {
         },
         process.env.JWT_SECRET,
         {
-            expiresIn: process.env.JWT_EXPIRY || "15m", // short-lived
+            expiresIn: process.env.JWT_EXPIRY || "1h", // short-lived
         }
     );
 };
