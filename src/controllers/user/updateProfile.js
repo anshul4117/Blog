@@ -4,14 +4,12 @@ import { deleteFromCloudinary } from '../../utils/cloudinaryHelper.js';
 
 const updateProfile = async (req, res) => {
   try {
-    const { id } = req.params || req.user.id; // assuming user ID is passed as a URL parameter or from authenticated user
+    const id = req.user.userId;
     let { name, bio, profession, gender, dob, interests, profilePicture, socialLinks } = req.body;
 
-    // console.log("file : ", req.file);
 
     // Handle File Upload
     if (req.file) {
-      // Cloudinary returns the full URL in req.file.path
       profilePicture = req.file.path;
     }
 
@@ -69,7 +67,7 @@ const updateProfile = async (req, res) => {
       id,
       { name, bio, profession, gender, dob, interests, profilePicture, socialLinks },
       { new: true }
-    );
+        .select("-password"));
 
     if (!updatedUser) {
       return res.status(404)

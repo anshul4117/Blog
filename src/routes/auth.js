@@ -20,7 +20,7 @@ import { upload } from '../middleware/upload.js';
 router.post('/create', validateRequest(registerUserSchema), createUser);
 router.post('/login', authLimiter, validateRequest(loginUserSchema), loginUser);
 router.get('/allUsers', auth, allUsers);
-router.patch('/edit-user/:id', auth, upload.single('profilePicture'), updateProfile);
+router.patch('/update-user-profile', auth, upload.single('profilePicture'), updateProfile);
 router.get('/profile', auth, userProfile);
 router.patch('/change-password', auth, changePassword);
 router.post('/refresh-token', refreshToken);
