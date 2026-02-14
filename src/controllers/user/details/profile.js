@@ -1,4 +1,5 @@
 import User from '../../../models/user.js';
+import Follow from '../../../models/follow.js';
 
 const userProfile = async (req, res) => {
   try {
