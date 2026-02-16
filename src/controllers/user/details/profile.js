@@ -11,11 +11,19 @@ const userProfile = async (req, res) => {
           message: 'Profile Unavailable'
         });
     }
-    return res.status(200)
-      .json({
-        message: 'fetched Profile',
-        getProfile
-      });
+    const [followersCount, followingCount] = await Promise.all([
+      Follow.countDocuments({ followingId: userId }),
+      Follow.countDocuments({ followerId: userId })
+    ]);
+
+    return res.status(200).json({
+      message: 'fetched Profile',
+      getProfile: {
+        ...getProfile.toObject(),
+        followersCount,
+        followingCount
+      }
+    });
   } catch (error) {
     return res.status(500)
       .json({
