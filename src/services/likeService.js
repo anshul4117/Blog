@@ -1,16 +1,11 @@
 import Like from '../models/like.js';
-import Blog from '../models/blog.js';
+import Blog from '../models/blog.js'; // Needed to find owner
 import AppError from '../utils/AppError.js';
 import logger from '../config/logger.js';
+import redisHelper from '../utils/helper/redisHelper.js';
 
 const likeService = {
-    /**
-     * Toggle like status (Like if not liked, Unlike if already liked)
-     * @param {string} userId 
-     * @param {string} targetId 
-     * @param {string} targetType 
-     * @returns {Object} { status: 'liked' | 'unliked' }
-     */
+
     async toggleLike(userId, targetId, targetType) {
         // 1. Validate Target Exists
         if (targetType === 'Blog') {
@@ -22,29 +17,39 @@ const likeService = {
         // 2. Check if already liked
         const existingLike = await Like.findOne({ userId, targetId, targetType });
 
+        // 2. Un-Like logic
         if (existingLike) {
-            // Unlike
             await Like.findByIdAndDelete(existingLike._id);
+            // Smart Cache Update (-1)
+            // Only update cache if the target is a Blog
+            if (targetType === 'Blog') {
+                const blog = await Blog.findById(targetId);
+                if (blog) {
+                    await redisHelper.updateMyBlogsCache(blog.userId, targetId, -1);
+                }
+            }
             logger.info(`User ${userId} unliked ${targetType} ${targetId}`);
             return { status: 'unliked' };
-        } else {
-            // Like
-            const newLike = await Like.create({ userId, targetId, targetType });
-            logger.info(`User ${userId} liked ${targetType} ${targetId}`);
-            return { status: 'liked', likedAt: newLike.createdAt };
         }
+
+        // 3. Like logic
+        const newLike = await Like.create({ userId, targetId, targetType });
+        // Smart Cache Update (+1)
+        // Only update cache if the target is a Blog
+        if (targetType === 'Blog') {
+            const blog = await Blog.findById(targetId);
+            if (blog) {
+                await redisHelper.updateMyBlogsCache(blog.userId, targetId, 1);
+            }
+        }
+        logger.info(`User ${userId} liked ${targetType} ${targetId}`);
+        return { status: 'liked', likedAt: newLike.createdAt };
     },
 
-    /**
-     * Get total likes for a target
-     */
     async getLikeCount(targetId, targetType) {
         return await Like.countDocuments({ targetId, targetType });
     },
 
-    /**
-     * Check if user liked a target
-     */
     async checkIsLiked(userId, targetId, targetType) {
         const like = await Like.exists({ userId, targetId, targetType });
         return !!like;

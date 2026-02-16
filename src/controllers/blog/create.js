@@ -32,9 +32,14 @@ const createBlog = async (req, res) => {
     const newBlog = new Blog(blogData);
     await newBlog.save();
 
-    // Invalidate cache
-    await redis.del('all_blogs');
-    await redis.del('my_blogs:' + userId);
+    // Invalidate cache safely
+    try {
+      await redis.del('all_blogs');
+      await redis.del('my_blogs:' + userId);
+    } catch (cacheError) {
+      console.error('Cache Invalidation Failed:', cacheError.message);
+      // Don't fail the request just because cache clearing failed
+    }
 
     return res.status(201).json({
       message: 'Blog created successfully',
