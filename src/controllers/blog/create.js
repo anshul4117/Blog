@@ -1,5 +1,5 @@
-import redis from '../../config/redisClient.js';
 import Blog from '../../models/blog.js';
+import { invalidateAllBlogsCache, invalidateUserBlogs } from '../../utils/helper/cacheHelper.js';
 
 const createBlog = async (req, res) => {
   try {
@@ -24,22 +24,17 @@ const createBlog = async (req, res) => {
     // Handle optional image upload
     if (req.file) {
       blogData.image = {
-        url: req.file.path,       // Cloudinary URL
-        publicId: req.file.filename // Cloudinary public_id for deletion
+        url: req.file.path,
+        publicId: req.file.filename
       };
     }
 
     const newBlog = new Blog(blogData);
     await newBlog.save();
 
-    // Invalidate cache safely
-    try {
-      await redis.del('all_blogs');
-      await redis.del('my_blogs:' + userId);
-    } catch (cacheError) {
-      console.error('Cache Invalidation Failed:', cacheError.message);
-      // Don't fail the request just because cache clearing failed
-    }
+    // Invalidate BOTH caches using centralized helper
+    await invalidateAllBlogsCache();
+    await invalidateUserBlogs(userId);
 
     return res.status(201).json({
       message: 'Blog created successfully',

@@ -2,6 +2,7 @@ import Blog from '../models/blog.js';
 import APIFeatures from '../utils/apiFeatures.js';
 import redis from '../config/redisClient.js';
 import logger from '../config/logger.js';
+import { registerCacheKey } from '../utils/helper/cacheHelper.js';
 
 const blogService = {
 
@@ -35,16 +36,28 @@ const blogService = {
 
         const blogs = await features.query;
 
+        // Get total count for pagination metadata
+        const totalBlogs = await Blog.countDocuments();
+
+        const result = {
+            blogs,
+            totalBlogs,
+            page: features.page,
+            limit: features.limit,
+            totalPages: Math.ceil(totalBlogs / features.limit)
+        };
+
         // 4. Update Cache (30 min TTL)
         try {
             if (blogs.length > 0) {
-                await redis.setex(cacheKey, 1800, JSON.stringify(blogs));
+                await redis.setex(cacheKey, 1800, JSON.stringify(result));
+                await registerCacheKey(cacheKey); // Track for O(1) invalidation
             }
         } catch (err) {
             logger.error('❌ Redis Set Error:', err);
         }
 
-        return blogs;
+        return result;
     }
 };
 
