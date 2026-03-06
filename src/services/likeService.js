@@ -7,40 +7,33 @@ import redisHelper from '../utils/helper/redisHelper.js';
 const likeService = {
 
     async toggleLike(userId, targetId, targetType) {
-        // 1. Validate Target Exists
+        let blog = null;
+
+        // 1. Validate Target Exists (and save reference for cache update)
         if (targetType === 'Blog') {
-            const blog = await Blog.findById(targetId);
+            blog = await Blog.findById(targetId);
             if (!blog) throw new AppError('Blog not found', 404);
         }
-        // Add logic for 'Comment' here later
 
         // 2. Check if already liked
         const existingLike = await Like.findOne({ userId, targetId, targetType });
 
-        // 2. Un-Like logic
+        // 3. Un-Like logic
         if (existingLike) {
             await Like.findByIdAndDelete(existingLike._id);
-            // Smart Cache Update (-1)
-            // Only update cache if the target is a Blog
-            if (targetType === 'Blog') {
-                const blog = await Blog.findById(targetId);
-                if (blog) {
-                    await redisHelper.updateMyBlogsCache(blog.userId, targetId, -1);
-                }
+            // Smart Cache Update (-1) — reuse `blog` from step 1
+            if (blog) {
+                await redisHelper.updateMyBlogsCache(blog.userId, targetId, -1);
             }
             logger.info(`User ${userId} unliked ${targetType} ${targetId}`);
             return { status: 'unliked' };
         }
 
-        // 3. Like logic
+        // 4. Like logic
         const newLike = await Like.create({ userId, targetId, targetType });
-        // Smart Cache Update (+1)
-        // Only update cache if the target is a Blog
-        if (targetType === 'Blog') {
-            const blog = await Blog.findById(targetId);
-            if (blog) {
-                await redisHelper.updateMyBlogsCache(blog.userId, targetId, 1);
-            }
+        // Smart Cache Update (+1) — reuse `blog` from step 1
+        if (blog) {
+            await redisHelper.updateMyBlogsCache(blog.userId, targetId, 1);
         }
         logger.info(`User ${userId} liked ${targetType} ${targetId}`);
         return { status: 'liked', likedAt: newLike.createdAt };
