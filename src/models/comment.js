@@ -18,13 +18,13 @@ const commentSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    // Adjacency List Pattern for Threading
-    parentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment',
-        default: null,
-        index: true // Critical for fetching replies
-    },
+    // // Adjacency List Pattern for Threading
+    // parentId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'Comment',
+    //     default: null,
+    //     index: true // Critical for fetching replies
+    // },
     // Soft Delete Flag
     isDeleted: {
         type: Boolean,
@@ -33,6 +33,6 @@ const commentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Optimize query performance for nested comments
-commentSchema.index({ blogId: 1, parentId: 1, createdAt: -1 });
+// commentSchema.index({ blogId: 1, parentId: 1, createdAt: -1 });
 
 export default mongoose.models.Comment || mongoose.model('Comment', commentSchema);
