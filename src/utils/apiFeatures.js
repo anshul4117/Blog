@@ -15,7 +15,7 @@ class APIFeatures {
 
     filter() {
         const queryObj = { ...this.queryString };
-        const excludedFields = ['page', 'sort', 'limit', 'fields'];
+        const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
         excludedFields.forEach((el) => delete queryObj[el]);
 
         // 1B) Advanced filtering
@@ -51,9 +51,11 @@ class APIFeatures {
 
     paginate() {
         const page = this.queryString.page * 1 || 1;
-        const limit = this.queryString.limit * 1 || 100;
+        const limit = this.queryString.limit * 1 || 10; // Default: 10 blogs per page
         const skip = (page - 1) * limit;
 
+        this.page = page;
+        this.limit = limit;
         this.query = this.query.skip(skip).limit(limit);
 
         return this;

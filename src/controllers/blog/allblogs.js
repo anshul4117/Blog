@@ -2,15 +2,16 @@ import blogService from '../../services/blogService.js';
 
 const allBlogs = async (req, res, next) => {
   try {
-    // Delegate to Service Layer (Handles Caching & DB)
-    const blogs = await blogService.getAllBlogs(req.query);
+    const result = await blogService.getAllBlogs(req.query);
 
-    // Send Response
     res.status(200).json({
       status: 'success',
-      results: blogs.length,
+      results: result.blogs.length,
+      totalBlogs: result.totalBlogs,
+      page: result.page,
+      totalPages: result.totalPages,
       data: {
-        blogs,
+        blogs: result.blogs,
       }
     });
   } catch (error) {
