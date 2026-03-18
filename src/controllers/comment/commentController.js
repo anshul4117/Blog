@@ -4,13 +4,12 @@ const commentController = {
     async createComment(req, res, next) {
         try {
             const userId = req.user.userId;
-            const { blogId, content, parentId } = req.body;
+            const { blogId, content } = req.body;
 
             const comment = await commentService.createComment({
                 userId,
                 blogId,
-                content,
-                parentId
+                content
             });
 
             res.status(201).json({
@@ -28,22 +27,6 @@ const commentController = {
             const { page, limit } = req.query;
 
             const result = await commentService.getCommentsByBlog(blogId, page, limit);
-
-            res.status(200).json({
-                status: 'success',
-                ...result
-            });
-        } catch (error) {
-            next(error);
-        }
-    },
-
-    async getReplies(req, res, next) {
-        try {
-            const { commentId } = req.params;
-            const { page, limit } = req.query;
-
-            const result = await commentService.getReplies(commentId, page, limit);
 
             res.status(200).json({
                 status: 'success',
