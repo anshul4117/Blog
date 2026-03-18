@@ -1,6 +1,5 @@
 import redis from '../../config/redisClient.js';
 import Blog from '../../models/blog.js';
-import Like from '../../models/like.js';
 import mongoose from 'mongoose';
 
 const myblogs = async (req, res) => {
@@ -12,7 +11,6 @@ const myblogs = async (req, res) => {
     cachedMyBlogs = await redis.get(cacheKey);
   } catch (error) {
     console.error('Redis Error (myblogs):', error.message);
-    // Continue to DB fetch if Redis fails
   }
 
   if (cachedMyBlogs) {
@@ -29,15 +27,16 @@ const myblogs = async (req, res) => {
 
   try {
 
-    const blogsWithLikes = await Blog.aggregate([
+    const blogsWithStats = await Blog.aggregate([
       {
         $match: {
           userId: new mongoose.Types.ObjectId(userId)
         }
       },
+      // Lookup: Like Count
       {
         $lookup: {
-          from: "likes", // must match MongoDB collection name
+          from: "likes",
           let: { blogId: "$_id" },
           pipeline: [
             {
@@ -50,32 +49,51 @@ const myblogs = async (req, res) => {
                 }
               }
             },
-            {
-              $count: "count"
-            }
+            { $count: "count" }
           ],
           as: "likeData"
         }
       },
+      // Lookup: Comment Count
+      {
+        $lookup: {
+          from: "comments",
+          let: { blogId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$blogId", "$$blogId"] },
+                    { $eq: ["$isDeleted", false] }
+                  ]
+                }
+              }
+            },
+            { $count: "count" }
+          ],
+          as: "commentData"
+        }
+      },
       {
         $addFields: {
-          likeCount: {
-            $ifNull: [{ $arrayElemAt: ["$likeData.count", 0] }, 0]
-          }
+          likeCount: { $ifNull: [{ $arrayElemAt: ["$likeData.count", 0] }, 0] },
+          commentCount: { $ifNull: [{ $arrayElemAt: ["$commentData.count", 0] }, 0] }
         }
       },
       {
         $project: {
-          likeData: 0
+          likeData: 0,
+          commentData: 0
         }
       },
       {
-        $sort: { createdAt: -1 } // optional sorting
+        $sort: { createdAt: -1 }
       }
     ]);
 
     try {
-      await redis.set(cacheKey, JSON.stringify(blogsWithLikes), 'EX', 1800);
+      await redis.set(cacheKey, JSON.stringify(blogsWithStats), 'EX', 1800);
     } catch (cacheSetError) {
       console.error('Redis Set Error:', cacheSetError.message);
       // Data is fetched, just failed to cache. Proceed.
