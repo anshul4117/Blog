@@ -25,12 +25,22 @@ const deleteBlog = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.userId;
-    const blog = await Blog.findByIdAndDelete(id);
+
+    // Step 1: Find the blog FIRST (don't delete yet)
+    const blog = await Blog.findById(id);
     if (!blog) {
       return res.status(404).json({ message: 'Blog not found' });
     }
 
-    // Delete image from Cloudinary if exists
+    // Step 2: Ownership check
+    if (blog.userId.toString() !== userId) {
+      return res.status(403).json({ message: 'You can only delete your own blogs' });
+    }
+
+    // Step 3: Now safe to delete
+    await Blog.findByIdAndDelete(id);
+
+    // Step 4: Cleanup Cloudinary image
     if (blog.image && blog.image.publicId) {
       try {
         await cloudinary.uploader.destroy(blog.image.publicId);
@@ -39,7 +49,7 @@ const deleteBlog = async (req, res) => {
       }
     }
 
-    // Invalidate BOTH caches
+    // Step 5: Invalidate caches
     await invalidateUserBlogs(userId);
     await invalidateAllBlogsCache();
 
@@ -59,13 +69,25 @@ const updateBlog = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.userId;
-    const { title, content, author } = req.body;
-    const blog = await Blog.findByIdAndUpdate(id, { title, content, author }, { new: true });
+
+    // Step 1: Find the blog FIRST
+    const blog = await Blog.findById(id);
     if (!blog) {
       return res.status(404).json({ message: 'Blog not found' });
     }
 
-    // Invalidate BOTH caches
+    // Step 2: Ownership check
+    if (blog.userId.toString() !== userId) {
+      return res.status(403).json({ message: 'You can only edit your own blogs' });
+    }
+
+    // Step 3: Now safe to update
+    const { title, content } = req.body;
+    if (title) blog.title = title;
+    if (content) blog.content = content;
+    await blog.save();
+
+    // Step 4: Invalidate caches
     await invalidateUserBlogs(userId);
     await invalidateAllBlogsCache();
 
