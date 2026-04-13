@@ -1,4 +1,5 @@
 import Blog from '../../models/blog.js';
+import cloudinary from '../../config/cloudinary.js';
 import { invalidateAllBlogsCache, invalidateUserBlogs } from '../../utils/helper/cacheHelper.js';
 
 const getBlogById = async (req, res) => {
@@ -27,6 +28,15 @@ const deleteBlog = async (req, res) => {
     const blog = await Blog.findByIdAndDelete(id);
     if (!blog) {
       return res.status(404).json({ message: 'Blog not found' });
+    }
+
+    // Delete image from Cloudinary if exists
+    if (blog.image && blog.image.publicId) {
+      try {
+        await cloudinary.uploader.destroy(blog.image.publicId);
+      } catch (cloudErr) {
+        console.error('Cloudinary delete error:', cloudErr.message);
+      }
     }
 
     // Invalidate BOTH caches
