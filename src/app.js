@@ -50,6 +50,10 @@ import followRoute from './routes/follow.js';
 import likeRoute from './routes/like.js';
 import commentRoute from './routes/comment.js';
 
+// Swagger API Docs
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger.js';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -61,8 +65,14 @@ const __dirname = path.dirname(__filename);
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Blog API Docs'
+}));
+
 app.use('/api/v1.2/users', authRoute);
-app.use('/api/v1.2/users', followRoute); // Extends user routes
+app.use('/api/v1.2/users', followRoute);
 app.use('/api/v1.2/likes', likeRoute);
 app.use('/api/v1.2/comments', commentRoute);
 app.use('/api/v1.2/blogs', blogRoute);
