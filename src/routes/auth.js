@@ -6,9 +6,11 @@ import auth from '../middleware/auth.js';
 import updateProfile from '../controllers/user/updateProfile.js';
 import { userProfile } from '../controllers/user/details/profile.js';
 import { changePassword } from '../controllers/user/service/changePassword.js';
+import { forgotPassword, resetPassword } from '../controllers/user/service/forgotPassword.js';
 import refreshToken from '../controllers/user/refreshToken.js';
 import logoutUser from '../controllers/user/logoutUser.js';
 import deleteProfilePicture from '../controllers/user/deleteProfilePicture.js';
+import searchUsers from '../controllers/user/searchUsers.js';
 const router = express.Router();
 
 import { validateRequest } from '../middleware/validateRequest.js';
@@ -26,5 +28,12 @@ router.patch('/change-password', auth, changePassword);
 router.post('/refresh-token', refreshToken);
 router.post('/logout', logoutUser);
 router.delete('/profile-picture', auth, deleteProfilePicture);
+
+// Forgot/Reset Password (Public)
+router.post('/forgot-password', authLimiter, forgotPassword);
+router.post('/reset-password', resetPassword);
+
+// User Search (Public)
+router.get('/search', searchUsers);
 
 export default router;
