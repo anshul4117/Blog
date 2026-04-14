@@ -88,6 +88,7 @@ const options = {
       { name: 'Blogs', description: 'Blog CRUD operations with image upload' },
       { name: 'Comments', description: 'Comment system for blogs' },
       { name: 'Likes', description: 'Like/unlike toggle for blogs' },
+      { name: 'Bookmarks', description: 'Save/unsave blogs for later' },
       { name: 'Follow', description: 'Follow/unfollow social features' }
     ]
   },

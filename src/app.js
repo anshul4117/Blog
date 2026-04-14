@@ -49,6 +49,7 @@ import blogRoute from './routes/blog.js';
 import followRoute from './routes/follow.js';
 import likeRoute from './routes/like.js';
 import commentRoute from './routes/comment.js';
+import bookmarkRoute from './routes/bookmark.js';
 
 // Swagger API Docs
 import swaggerUi from 'swagger-ui-express';
@@ -75,6 +76,7 @@ app.use('/api/v1.2/users', authRoute);
 app.use('/api/v1.2/users', followRoute);
 app.use('/api/v1.2/likes', likeRoute);
 app.use('/api/v1.2/comments', commentRoute);
+app.use('/api/v1.2/bookmarks', bookmarkRoute);
 app.use('/api/v1.2/blogs', blogRoute);
 
 // Health check endpoint
