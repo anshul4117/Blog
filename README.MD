@@ -14,6 +14,7 @@ A production-ready REST API for a modern blogging platform. Built with **Node.js
 
 ### 📝 Blog Engine
 - CRUD with Cloudinary image upload (auto-cleanup on delete)
+- Draft/Published support (`published` field)
 - Full-text search on title & content
 - Pagination, sorting, field selection
 - Redis caching with smart invalidation (Set registry pattern)
@@ -89,6 +90,11 @@ npm test -- --runInBand
 ### API Docs
 Start the server and open: **http://localhost:2000/api-docs**
 
+### Health Check
+```
+GET http://localhost:2000/health
+```
+
 ---
 
 ## API Endpoints
@@ -161,7 +167,7 @@ src/
 │   └── comment/     # Comment CRUD
 ├── docs/            # Swagger JSDoc annotations
 ├── middleware/      # Auth, rate limit, validation, XSS, error handler
-├── models/          # Mongoose schemas (User, Blog, Like, Comment, Bookmark, Follow)
+├── models/          # Mongoose schemas (User, Blog, Like, Comment, Bookmark, Follow, RefreshToken)
 ├── routes/          # Express route definitions
 ├── services/        # Business logic (blog, like, comment, bookmark, follow)
 ├── utils/           # AppError, APIFeatures, cache helpers
