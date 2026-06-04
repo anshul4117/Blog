@@ -36,49 +36,49 @@ const myblogs = async (req, res) => {
       // Lookup: Like Count
       {
         $lookup: {
-          from: "likes",
-          let: { blogId: "$_id" },
+          from: 'likes',
+          let: { blogId: '$_id' },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$targetId", "$$blogId"] },
-                    { $eq: ["$targetType", "Blog"] }
+                    { $eq: ['$targetId', '$$blogId'] },
+                    { $eq: ['$targetType', 'Blog'] }
                   ]
                 }
               }
             },
-            { $count: "count" }
+            { $count: 'count' }
           ],
-          as: "likeData"
+          as: 'likeData'
         }
       },
       // Lookup: Comment Count
       {
         $lookup: {
-          from: "comments",
-          let: { blogId: "$_id" },
+          from: 'comments',
+          let: { blogId: '$_id' },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$blogId", "$$blogId"] },
-                    { $eq: ["$isDeleted", false] }
+                    { $eq: ['$blogId', '$$blogId'] },
+                    { $eq: ['$isDeleted', false] }
                   ]
                 }
               }
             },
-            { $count: "count" }
+            { $count: 'count' }
           ],
-          as: "commentData"
+          as: 'commentData'
         }
       },
       {
         $addFields: {
-          likeCount: { $ifNull: [{ $arrayElemAt: ["$likeData.count", 0] }, 0] },
-          commentCount: { $ifNull: [{ $arrayElemAt: ["$commentData.count", 0] }, 0] }
+          likeCount: { $ifNull: [{ $arrayElemAt: ['$likeData.count', 0] }, 0] },
+          commentCount: { $ifNull: [{ $arrayElemAt: ['$commentData.count', 0] }, 0] }
         }
       },
       {
@@ -101,8 +101,8 @@ const myblogs = async (req, res) => {
 
     return res.status(200).json({
       message: 'Blogs fetched successfully',
-      length: blogsWithLikes.length,
-      blogs: blogsWithLikes
+      length: blogsWithStats.length,
+      blogs: blogsWithStats
     });
 
   } catch (error) {

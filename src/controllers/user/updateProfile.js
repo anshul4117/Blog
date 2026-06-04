@@ -67,7 +67,7 @@ const updateProfile = async (req, res) => {
       id,
       { name, bio, profession, gender, dob, interests, profilePicture, socialLinks },
       { new: true }
-        .select("-password"));
+        .select('-password'));
 
     if (!updatedUser) {
       return res.status(404)

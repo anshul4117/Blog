@@ -5,21 +5,21 @@
  */
 
 const sanitize = (obj) => {
-    if (obj instanceof Object) {
-        for (const key in obj) {
-            if (/^\$/.test(key)) {
-                delete obj[key];
-            } else {
-                sanitize(obj[key]);
-            }
-        }
+  if (obj instanceof Object) {
+    for (const key in obj) {
+      if (/^\$/.test(key)) {
+        delete obj[key];
+      } else {
+        sanitize(obj[key]);
+      }
     }
-    return obj;
+  }
+  return obj;
 };
 
 export const mongoSanitize = () => (req, res, next) => {
-    sanitize(req.body);
-    sanitize(req.params);
-    sanitize(req.query);
-    next();
+  sanitize(req.body);
+  sanitize(req.params);
+  sanitize(req.query);
+  next();
 };

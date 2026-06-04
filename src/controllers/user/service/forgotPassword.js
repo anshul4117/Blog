@@ -9,33 +9,33 @@ import sendEmail from '../../../config/mailer.js';
  * Generates a 6-digit OTP, stores in Redis (10 min TTL), emails it
  */
 const forgotPassword = async (req, res) => {
-    try {
-        const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required' });
-        }
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            // Don't reveal if email exists (security best practice)
-            return res.status(200).json({
-                message: 'If this email is registered, you will receive a reset OTP'
-            });
-        }
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal if email exists (security best practice)
+      return res.status(200).json({
+        message: 'If this email is registered, you will receive a reset OTP'
+      });
+    }
 
-        // Generate 6-digit OTP
-        const otp = crypto.randomInt(100000, 999999).toString();
+    // Generate 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
 
-        // Store OTP in Redis with 10 min TTL
-        const otpKey = `reset_otp:${email}`;
-        await redis.setex(otpKey, 600, otp);
+    // Store OTP in Redis with 10 min TTL
+    const otpKey = `reset_otp:${email}`;
+    await redis.setex(otpKey, 600, otp);
 
-        // Send OTP via email
-        await sendEmail(
-            email,
-            'Password Reset OTP - Blog App',
-            `
+    // Send OTP via email
+    await sendEmail(
+      email,
+      'Password Reset OTP - Blog App',
+      `
             <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 500px;">
                 <h2 style="color: #333;">Password Reset</h2>
                 <p>You requested a password reset. Use the OTP below:</p>
@@ -46,18 +46,18 @@ const forgotPassword = async (req, res) => {
                 <p style="color: #999; font-size: 12px;">If you didn't request this, please ignore this email.</p>
             </div>
             `
-        );
+    );
 
-        return res.status(200).json({
-            message: 'If this email is registered, you will receive a reset OTP'
-        });
+    return res.status(200).json({
+      message: 'If this email is registered, you will receive a reset OTP'
+    });
 
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Error sending reset email',
-            error: error.message
-        });
-    }
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error sending reset email',
+      error: error.message
+    });
+  }
 };
 
 /**
@@ -65,46 +65,46 @@ const forgotPassword = async (req, res) => {
  * Verifies OTP and resets password
  */
 const resetPassword = async (req, res) => {
-    try {
-        const { email, otp, newPassword } = req.body;
+  try {
+    const { email, otp, newPassword } = req.body;
 
-        if (!email || !otp || !newPassword) {
-            return res.status(400).json({
-                message: 'Email, OTP, and new password are required'
-            });
-        }
-
-        if (newPassword.length < 6) {
-            return res.status(400).json({
-                message: 'Password must be at least 6 characters'
-            });
-        }
-
-        // Verify OTP from Redis
-        const otpKey = `reset_otp:${email}`;
-        const storedOtp = await redis.get(otpKey);
-
-        if (!storedOtp || storedOtp !== otp) {
-            return res.status(400).json({ message: 'Invalid or expired OTP' });
-        }
-
-        // Hash new password and update
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await User.findOneAndUpdate({ email }, { password: hashedPassword });
-
-        // Delete OTP from Redis (one-time use)
-        await redis.del(otpKey);
-
-        return res.status(200).json({
-            message: 'Password reset successfully. Please login with your new password.'
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Error resetting password',
-            error: error.message
-        });
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({
+        message: 'Email, OTP, and new password are required'
+      });
     }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    // Verify OTP from Redis
+    const otpKey = `reset_otp:${email}`;
+    const storedOtp = await redis.get(otpKey);
+
+    if (!storedOtp || storedOtp !== otp) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    // Hash new password and update
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findOneAndUpdate({ email }, { password: hashedPassword });
+
+    // Delete OTP from Redis (one-time use)
+    await redis.del(otpKey);
+
+    return res.status(200).json({
+      message: 'Password reset successfully. Please login with your new password.'
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error resetting password',
+      error: error.message
+    });
+  }
 };
 
 export { forgotPassword, resetPassword };

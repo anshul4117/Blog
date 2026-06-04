@@ -1,22 +1,22 @@
 import mongoose from 'mongoose';
 
 const likeSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true
-    },
-    targetId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        index: true
-    },
-    targetType: {
-        type: String,
-        enum: ['Blog', 'Comment'], // Expandable for future
-        required: true
-    }
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    index: true
+  },
+  targetId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    index: true
+  },
+  targetType: {
+    type: String,
+    enum: ['Blog', 'Comment'], // Expandable for future
+    required: true
+  }
 }, { timestamps: true });
 
 // Compound Index: A user can only like a specific target once

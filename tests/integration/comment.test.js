@@ -43,7 +43,7 @@ beforeAll(async () => {
     // Create Blog
     blog = await Blog.create({
         title: 'Blog for Comments',
-        content: 'This blog will have threaded comments.',
+        content: 'This blog will have flat comments.',
         userId: user1._id
     });
 });
@@ -56,76 +56,40 @@ afterAll(async () => {
 });
 
 describe('Comment System Integration', () => {
-    let topLevelCommentId;
+    let commentId;
 
-    it('should create a top-level comment', async () => {
+    it('should create a comment', async () => {
         const res = await request(app)
             .post('/api/v1.2/comments/create')
             .set('Authorization', `Bearer ${user1Token}`)
             .send({
                 blogId: blog._id,
-                content: 'This is a top level comment'
+                content: 'This is a comment'
             });
 
         expect(res.statusCode).toEqual(201);
-        expect(res.body.data.content).toBe('This is a top level comment');
-        expect(res.body.data.parentId).toBeNull();
-        topLevelCommentId = res.body.data._id;
+        expect(res.body.data.content).toBe('This is a comment');
+        commentId = res.body.data._id;
     });
 
-    it('should reply to a comment (Threading)', async () => {
-        const res = await request(app)
-            .post('/api/v1.2/comments/create')
-            .set('Authorization', `Bearer ${user2Token}`)
-            .send({
-                blogId: blog._id,
-                content: 'This is a reply to the top level comment',
-                parentId: topLevelCommentId
-            });
-
-        expect(res.statusCode).toEqual(201);
-        expect(res.body.data.parentId).toBe(topLevelCommentId);
-    });
-
-    it('should fetch top-level comments for a blog', async () => {
+    it('should fetch comments for a blog', async () => {
         const res = await request(app)
             .get(`/api/v1.2/comments/blog/${blog._id}`);
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.results.length).toBeGreaterThan(0);
-        // Only top level
-        expect(res.body.results[0].parentId).toBeNull();
-        // Check reply count (should be 1 from previous test)
-        expect(res.body.results[0].replyCount).toBe(1);
-    });
-
-    it('should fetch replies for a comment', async () => {
-        const res = await request(app)
-            .get(`/api/v1.2/comments/replies/${topLevelCommentId}`);
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.results.length).toBe(1);
-        expect(res.body.results[0].content).toBe('This is a reply to the top level comment');
     });
 
     it('should soft delete a comment', async () => {
         const res = await request(app)
-            .delete(`/api/v1.2/comments/${topLevelCommentId}`)
+            .delete(`/api/v1.2/comments/${commentId}`)
             .set('Authorization', `Bearer ${user1Token}`);
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.message).toBe('Comment deleted successfully');
 
         // Verify in DB
-        const comment = await Comment.findById(topLevelCommentId);
+        const comment = await Comment.findById(commentId);
         expect(comment.isDeleted).toBe(true);
-    });
-
-    it('should check if replies still exist after parent soft delete', async () => {
-        const res = await request(app)
-            .get(`/api/v1.2/comments/replies/${topLevelCommentId}`);
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.results.length).toBe(1); // Reply should still be there
     });
 });
