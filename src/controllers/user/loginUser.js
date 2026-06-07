@@ -1,16 +1,15 @@
 import config from '../../config/index.js';
 import User from '../../models/user.js';
-import RefreshToken from '../../models/RefreshToken.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { generateAccessToken, generateRefreshToken } from '../../utils/token.js';
 dotenv.config();
 
 const options = {
   httpOnly: true,
-  secure: true,
-  sameSite: 'strict',
+  secure: config.NODE_ENV === 'production',
+  sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+  path: '/',
 };
 
 const loginUser = async (req, res, next) => {
@@ -29,12 +28,6 @@ const loginUser = async (req, res, next) => {
 
     const accessToken = generateAccessToken(user);
     const refreshToken = await generateRefreshToken(user);
-
-    await RefreshToken.create({
-      token: refreshToken,
-      userId: user._id,
-      expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-    });
 
     res.cookie('accessToken', accessToken, options);
     res.cookie('refreshToken', refreshToken, options);

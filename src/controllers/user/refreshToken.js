@@ -1,11 +1,12 @@
-import jwt from 'jsonwebtoken';
 import RefreshToken from '../../models/RefreshToken.js';
+import User from '../../models/user.js';
 import dotenv from 'dotenv';
 import config from '../../config/index.js';
+import { generateAccessToken } from '../../utils/token.js';
 dotenv.config();
 
 const refreshToken = async (req, res) => {
-  const { refreshToken: requestToken } = req.body;
+  const requestToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!requestToken) {
     return res.status(403).json({ status: 'fail', message: 'Refresh Token is required!' });
@@ -20,19 +21,30 @@ const refreshToken = async (req, res) => {
 
     // 2. Check Expiry
     if (RefreshToken.verifyExpiration(tokenInDb)) {
-      await RefreshToken.findByIdAndRemove(tokenInDb._id, { useFindAndModify: false });
+      await RefreshToken.findByIdAndDelete(tokenInDb._id);
       return res.status(403).json({
         status: 'fail',
         message: 'Refresh token was expired. Please make a new signin request',
       });
     }
 
+    // Fetch user to generate a valid access token with correct details
+    const user = await User.findById(tokenInDb.userId);
+    if (!user) {
+      return res.status(403).json({ status: 'fail', message: 'User not found!' });
+    }
+
     // 3. Issue new Access Token
-    const newAccessToken = jwt.sign(
-      { userId: tokenInDb.userId }, // In a real app, you might want to fetch the User to get email/roles again.
-      process.env.JWT_SECRET,
-      { expiresIn: config.JWT_EXPIRY || '15m' }
-    );
+    const newAccessToken = generateAccessToken(user);
+
+    const options = {
+      httpOnly: true,
+      secure: config.NODE_ENV === 'production',
+      sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
+    };
+
+    res.cookie('accessToken', newAccessToken, options);
 
     return res.status(200).json({
       status: 'success',

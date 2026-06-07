@@ -1,6 +1,7 @@
 import RefreshToken from '../../models/RefreshToken.js';
 import blacklistService from '../../services/blacklistService.js';
 import jwt from 'jsonwebtoken';
+import config from '../../config/index.js';
 
 const logoutUser = async (req, res) => {
   try {
@@ -30,7 +31,8 @@ const logoutUser = async (req, res) => {
     // 3. Clear Cookies
     const options = {
       httpOnly: true,
-      secure: true,
+      secure: config.NODE_ENV === 'production',
+      sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/' // Ensure path matches login path
     };
 
